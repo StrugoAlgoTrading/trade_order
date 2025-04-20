@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      db_host: ${db_host}
+      mail_sender: ${mail_sender}
+      mail_receiver: ${mail_receiver}
+      mail_password: ${mail_password}
+      openai_api_key: ${openai_api_key}
+      ib_gateway_host: ${ib_gateway_host}
+      ib_gateway_port: ${ib_gateway_port}
+      ib_client_id: ${ib_client_id}
+
+    depends_on:
+      - ib-gateway
+      - db
+
+  ib-gateway:
+    image: ghcr.io/gnzsnz/ib-gateway:latest
+    ports:
+      - "4002:4002"
+      - "4001:4001"
+    environment:
+      TRADING_MODE: ${TRADING_MODE}
+    volumes:
+      - ./jts.ini:/root/Jts/jts.ini
+
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
