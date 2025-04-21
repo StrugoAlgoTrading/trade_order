@@ -4,3 +4,4 @@ openai
 ib_insync
 psycopg2-binary
 dotenv
+pydantic

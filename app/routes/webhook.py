@@ -3,6 +3,7 @@ from app.services.trader import TraderService
 from app.services.gpt import GPTService
 from app.services.mailer import Mailer
 from app.services.database import TradeDatabase
+from app.format.tweet_request import Tweet
 
 router = APIRouter()
 
@@ -18,24 +19,13 @@ async def connect_ibkr_on_startup():
 
 
 @router.post("/webhook")
-async def webhook(request: Request):
-    data = await request.json()
-    tweet = data.get("text") or data.get("tweet")
-
+async def webhook(tweet: Tweet):
+    tweet = tweet.text or tweet.tweet
     if not tweet:
         return {"status": "error", "reason": "No text found"}
-
     classification = await gpt.analyze(tweet)
     trade_result = trader.execute_trade(classification, tweet)
-
     mailer.send(
         subject="Trump Tweet Triggered Trade",
-        body=f"Tweet: {tweet}\n\nClassification: {classification}\n\nAction: {trade_result}"
-    )
-
-    return {
-        "status": "ok",
-        "tweet": tweet,
-        "classification": classification,
-        "trade": trade_result
-    }
+        body=f"Tweet: {tweet}\n\nClassification: {classification}\n\nAction: {trade_result}")
+    return {"status": "ok", "tweet": tweet, "classification": classification, "trade": trade_result}

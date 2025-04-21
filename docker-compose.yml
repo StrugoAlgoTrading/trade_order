@@ -21,19 +21,29 @@ services:
       ib_client_id: ${ib_client_id}
 
     depends_on:
-      - ib-gateway
-      - db
+      ib-gateway:
+        condition: service_healthy
+      db:
+        condition: service_started
+
 
   ib-gateway:
     image: ghcr.io/gnzsnz/ib-gateway:latest
     ports:
-      - "4002:4002"
-      - "4001:4001"
+      - "127.0.0.1:4002:4002"
+      - "127.0.0.1:4001:4001"
     environment:
+      IB_GATEWAY_USER: ${IB_GATEWAY_USER}
+      IB_GATEWAY_PW: ${IB_GATEWAY_PW}
       TRADING_MODE: ${TRADING_MODE}
     volumes:
       - ./jts.ini:/root/Jts/jts.ini
-
+      - ./config.ini:/home/ibgateway/ibc/config.ini
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/4002"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
   db:
     image: postgres:13
@@ -49,8 +59,8 @@ services:
     image: dpage/pgadmin4
     restart: always
     ports:
-      - "5050:80"
-    environment:
+      - "127.0.0.1:5050:80"
+  environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
