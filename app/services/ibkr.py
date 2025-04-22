@@ -15,8 +15,8 @@ class IBKR:
             clientId=self.settings.ib_client_id
         )
 
-    def buy(self):
-        self.ib.placeOrder(self.contract, MarketOrder('BUY', 1))
+    def buy(self, stocks_count):
+        self.ib.placeOrder(self.contract, MarketOrder('BUY', stocks_count))
 
-    def sell(self):
-        self.ib.placeOrder(self.contract, MarketOrder('SELL', 1))
+    def sell(self, stocks_count):
+        self.ib.placeOrder(self.contract, MarketOrder('SELL', stocks_count))
