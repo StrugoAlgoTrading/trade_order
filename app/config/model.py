@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 
 class Settings(BaseModel):
-    openai_api_key: str
     db_host: str
     POSTGRES_DB: str
     POSTGRES_USER: str

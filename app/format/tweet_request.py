@@ -3,5 +3,6 @@ from typing import Optional
 
 
 class Tweet(BaseModel):
-    tweet: Optional[str]
-    text: Optional[str]
+    event_type: str
+    ticker: str
+    time: str

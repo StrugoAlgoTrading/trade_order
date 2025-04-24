@@ -1,6 +1,6 @@
 import smtplib
 from email.mime.text import MIMEText
-from app.config.settings import get_settings
+from ..config.settings import get_settings
 
 
 class Mailer:

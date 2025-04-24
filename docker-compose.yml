@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "8000:8000"  # רק ה-API חשוף החוצה
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -15,35 +15,26 @@ services:
       mail_sender: ${mail_sender}
       mail_receiver: ${mail_receiver}
       mail_password: ${mail_password}
-      openai_api_key: ${openai_api_key}
-      ib_gateway_host: ${ib_gateway_host}
+      ib_gateway_host: ib-gateway
       ib_gateway_port: ${ib_gateway_port}
       ib_client_id: ${ib_client_id}
-
     depends_on:
       ib-gateway:
-        condition: service_healthy
+        condition: service_started
       db:
         condition: service_started
 
-
   ib-gateway:
     image: ghcr.io/gnzsnz/ib-gateway:latest
-    ports:
-      - "127.0.0.1:4002:4002"
-      - "127.0.0.1:4001:4001"
     environment:
       IB_GATEWAY_USER: ${IB_GATEWAY_USER}
       IB_GATEWAY_PW: ${IB_GATEWAY_PW}
       TRADING_MODE: ${TRADING_MODE}
     volumes:
       - ./jts.ini:/root/Jts/jts.ini
-      - ./config.ini:/home/ibgateway/ibc/config.ini
-    healthcheck:
-      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/4002"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
+    expose:
+      - "4001"
+      - "4002"  # זמינים רק לשירותים האחרים, לא לעולם החיצון
 
   db:
     image: postgres:13
@@ -54,17 +45,19 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"  # רק ברשת הפנימית
 
   pgadmin:
     image: dpage/pgadmin4
     restart: always
-    ports:
-      - "127.0.0.1:5050:80"
-  environment:
+    environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
       - db
+    expose:
+      - "80"  # רק פנימי, לא חשוף מחוץ לדוקר
 
 volumes:
   postgres_data:

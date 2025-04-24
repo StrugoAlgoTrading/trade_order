@@ -1,4 +1,4 @@
-from app.services.ibkr import IBKR
+from .ibkr import IBKR
 from datetime import datetime
 
 
@@ -13,10 +13,10 @@ class TraderService:
         if classification == "Good for the stock market":
             if self.db.already_bought_today(today):
                 return "Trade skipped: already bought today."
-            self.ibkr.buy()
+            self.ibkr.buy(1)
             action = "BUY"
         elif classification == "Bad for the stock market":
-            self.ibkr.sell()
+            self.ibkr.sell(1)
             action = "SELL"
         else:
             action = "NONE"
