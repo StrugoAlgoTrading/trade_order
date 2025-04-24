@@ -5,8 +5,9 @@ services:
     build: .
     volumes:
       - .:/app
+      - ./jts.ini:/home/ibgateway/Jts/jts.ini
     ports:
-      - "8000:8000"  # רק ה-API חשוף החוצה
+      - "8000:8000"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -25,16 +26,23 @@ services:
         condition: service_started
 
   ib-gateway:
-    image: ghcr.io/gnzsnz/ib-gateway:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+      args:
+        IB_GATEWAY_USER: ${IB_GATEWAY_USER}
+        IB_GATEWAY_PW: ${IB_GATEWAY_PW}
+        TRADING_MODE: ${TRADING_MODE}
     environment:
-      IB_GATEWAY_USER: ${IB_GATEWAY_USER}
-      IB_GATEWAY_PW: ${IB_GATEWAY_PW}
-      TRADING_MODE: ${TRADING_MODE}
+      - CUSTOM_CONFIG=yes
+      - IB_GATEWAY_USER=${IB_GATEWAY_USER}
+      - IB_GATEWAY_PW=${IB_GATEWAY_PW}
+      - TRADING_MODE=${TRADING_MODE}
     volumes:
-      - ./jts.ini:/root/Jts/jts.ini
+      - ./jts.ini:/home/ibgateway/Jts/jts.ini
     expose:
       - "4001"
-      - "4002"  # זמינים רק לשירותים האחרים, לא לעולם החיצון
+      - "4002"
 
   db:
     image: postgres:13
@@ -46,7 +54,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     expose:
-      - "5432"  # רק ברשת הפנימית
+      - "5432"
 
   pgadmin:
     image: dpage/pgadmin4
@@ -57,7 +65,7 @@ services:
     depends_on:
       - db
     expose:
-      - "80"  # רק פנימי, לא חשוף מחוץ לדוקר
+      - "80"
 
 volumes:
   postgres_data:

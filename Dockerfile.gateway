@@ -1,0 +1,19 @@
+FROM ghcr.io/gnzsnz/ib-gateway:latest
+
+USER root
+
+ARG IB_GATEWAY_USER
+ARG IB_GATEWAY_PW
+ARG TRADING_MODE
+
+ENV IB_GATEWAY_USER=${IB_GATEWAY_USER}
+ENV IB_GATEWAY_PW=${IB_GATEWAY_PW}
+ENV TRADING_MODE=${TRADING_MODE}
+
+COPY config.template.ini /home/ibgateway/ibc/config.template.ini
+
+RUN apt-get update && apt-get install -y gettext \
+    && envsubst < /home/ibgateway/ibc/config.template.ini > /home/ibgateway/ibc/config.ini \
+    && chown ibgateway:ibgateway /home/ibgateway/ibc/config.ini
+
+USER ibgateway
