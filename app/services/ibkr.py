@@ -1,27 +1,34 @@
-from app.config.settings import get_settings
+from app.config.settings import CONF
 from ib_insync import *
-from time import sleep
+import asyncio
+import logging
 
 class IBKR:
     def __init__(self):
         self.ib = IB()
         self.contract = Stock('SPY', 'SMART', 'USD')
-        self.settings = get_settings
+        self.settings = CONF
 
     async def connect(self):
-        for attempt in range(15):
+        for attempt in range(50):
             try:
+                logging.info(f"Attempt {attempt+1}: Connecting to IB Gateway at {self.settings.ib_gateway_host}:{self.settings.ib_gateway_port}")
                 await self.ib.connectAsync(
                     self.settings.ib_gateway_host,
                     self.settings.ib_gateway_port,
-                    clientId=self.settings.ib_client_id
+                    clientId=self.settings.ib_client_id,
+                    timeout=10
                 )
+                logging.info("✅ Connected successfully to IB Gateway!")
                 return
-            except:
-                sleep(5)
+            except Exception as e:
+                logging.error(f"Attempt {attempt+1} failed: {e}")
+                await asyncio.sleep(5)
 
-    def buy(self, stocks_count):
-        self.ib.placeOrder(self.contract, MarketOrder('BUY', stocks_count))
+        raise Exception("❌ Could not connect to IBKR Gateway after multiple attempts.")
 
-    def sell(self, stocks_count):
-        self.ib.placeOrder(self.contract, MarketOrder('SELL', stocks_count))
+    def buy(self, amount):
+        self.ib.placeOrder(self.contract, MarketOrder('BUY', amount))
+
+    def sell(self, amount):
+        self.ib.placeOrder(self.contract, MarketOrder('SELL', amount))

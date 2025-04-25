@@ -1,10 +1,10 @@
-from app.config.settings import get_settings
+from app.config.settings import CONF
 import openai
 
 
 class GPTService:
     def __init__(self):
-        self.settings = get_settings
+        self.settings = CONF
         openai.api_key = self.settings.openai_api_key
 
     async def analyze(self, text: str) -> str:

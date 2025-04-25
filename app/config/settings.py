@@ -22,4 +22,4 @@ def _load_settings() -> Settings:
     )
 
 
-get_settings = _load_settings()
+CONF = _load_settings()

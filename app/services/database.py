@@ -1,15 +1,14 @@
-from app.config.settings import get_settings
+from app.config.settings import CONF
 import psycopg2
 
 
 class TradeDatabase:
     def __init__(self):
-        settings = get_settings
         self.conn = psycopg2.connect(
-            host=settings.db_host,
-            database=settings.POSTGRES_DB,
-            user=settings.POSTGRES_USER,
-            password=settings.POSTGRES_PASSWORD
+            host=CONF.db_host,
+            database=CONF.POSTGRES_DB,
+            user=CONF.POSTGRES_USER,
+            password=CONF.POSTGRES_PASSWORD
         )
         self.conn.autocommit = True
         self.cur = self.conn.cursor()
