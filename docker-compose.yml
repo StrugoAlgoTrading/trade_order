@@ -19,6 +19,8 @@ services:
       ib_gateway_host: ib-gateway
       ib_gateway_port: ${ib_gateway_port}
       ib_client_id: ${ib_client_id}
+    networks:
+      - trade_network
     depends_on:
       ib-gateway:
         condition: service_started
@@ -38,8 +40,11 @@ services:
       - IB_GATEWAY_USER=${IB_GATEWAY_USER}
       - IB_GATEWAY_PW=${IB_GATEWAY_PW}
       - TRADING_MODE=${TRADING_MODE}
+    networks:
+      - trade_network
     volumes:
       - ./jts.ini:/home/ibgateway/Jts/jts.ini
+      - ./tws.xml:/home/ibgateway/Jts/tws.xml
     expose:
       - "4001"
       - "4002"
@@ -61,6 +66,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - trade_network
     volumes:
       - postgres_data:/var/lib/postgresql/data
     expose:
@@ -72,6 +79,8 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    networks:
+      - trade_network
     depends_on:
       - db
     expose:
@@ -79,3 +88,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  trade_network:
+    driver: bridge

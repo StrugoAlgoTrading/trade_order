@@ -1,0 +1,10 @@
+<ServerSettings>
+    <EnableActiveXAndSocketClients>true</EnableActiveXAndSocketClients>
+    <SocketPort>4002</SocketPort>
+    <TrustedIPs>127.0.0.1,0.0.0.0/0</TrustedIPs>
+    <AllowIncomingConnectionsFromTrustedIPsOnly>false</AllowIncomingConnectionsFromTrustedIPsOnly>
+    <ReadOnlyApi>false</ReadOnlyApi>
+    <DownloadOpenOrdersOnConnection>true</DownloadOpenOrdersOnConnection>
+    <DownloadCompletedOrdersOnConnection>true</DownloadCompletedOrdersOnConnection>
+    <AllowApiIncomingConnectionFromExternalSources>true</AllowApiIncomingConnectionFromExternalSources>
+</ServerSettings>
