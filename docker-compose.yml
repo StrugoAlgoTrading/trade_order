@@ -6,6 +6,7 @@ services:
     volumes:
       - .:/app
       - ./jts.ini:/home/ibgateway/Jts/jts.ini
+      - ./tws.xml:/home/ibgateway/Jts/tws.xml
     ports:
       - "8000:8000"
     environment:
@@ -28,13 +29,7 @@ services:
         condition: service_started
 
   ib-gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile.gateway
-      args:
-        IB_GATEWAY_USER: ${IB_GATEWAY_USER}
-        IB_GATEWAY_PW: ${IB_GATEWAY_PW}
-        TRADING_MODE: ${TRADING_MODE}
+    image: ghcr.io/unusualalpha/ib-gateway:10.20.1h
     environment:
       - CUSTOM_CONFIG=yes
       - IB_GATEWAY_USER=${IB_GATEWAY_USER}
@@ -57,7 +52,6 @@ services:
       timeout: 5s
       retries: 30
       start_period: 60s
-
 
   db:
     image: postgres:13
