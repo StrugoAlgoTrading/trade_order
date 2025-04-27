@@ -7,6 +7,8 @@ services:
       - .:/app
       - ./jts.ini:/home/ibgateway/Jts/jts.ini
       - ./tws.xml:/home/ibgateway/Jts/tws.xml
+      - ./config.ini:/root/ibc/config.ini
+
     ports:
       - "8000:8000"
     environment:
@@ -32,15 +34,18 @@ services:
     image: ghcr.io/unusualalpha/ib-gateway:10.20.1h
     environment:
       - CUSTOM_CONFIG=yes
-      - IB_GATEWAY_USER=${IB_GATEWAY_USER}
-      - IB_GATEWAY_PW=${IB_GATEWAY_PW}
-      - TRADING_MODE=${TRADING_MODE}
     networks:
       - trade_network
     volumes:
       - ./jts.ini:/home/ibgateway/Jts/jts.ini
       - ./tws.xml:/home/ibgateway/Jts/tws.xml
+      - ./config.ini:/root/ibc/config.ini
+    ports:
+      - "4000:4000"  # חדש - פותח את 4000
+      - "4001:4001"
+      - "4002:4002"
     expose:
+      - "4000"      # חדש - מוסיף את 4000
       - "4001"
       - "4002"
     dns:
