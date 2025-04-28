@@ -15,20 +15,18 @@ class TradeDatabase:
         self.cur.execute("""
         CREATE TABLE IF NOT EXISTS trades (
             id SERIAL PRIMARY KEY,
-            date DATE NOT NULL,
-            classification TEXT,
+            event_type TEXT,
+            event_time DATE NOT NULL,
+            ticker TEXT,
             action TEXT,
-            tweet TEXT,
+            context TEXT,
             trade_time DATE NOT NULL
         )
         """)
 
-    def already_bought_today(self, today):
-        self.cur.execute("SELECT COUNT(*) FROM trades WHERE date = %s AND action = 'BUY'", (today,))
-        return self.cur.fetchone()[0] > 0
-
-    def save_trade(self, date, classification, action, tweet, trade_time):
+    def save_trade(self, event_type, event_time, ticker, action, context, trade_time):
         self.cur.execute(
-            "INSERT INTO trades (date, classification, action, tweet, trade_time) VALUES (%s, %s, %s, %s, %s)",
-            (date, classification, action, tweet, trade_time)
+            "INSERT INTO trades "
+            "(event_type, event_time, ticker, action, context, trade_time) VALUES (%s, %s, %s, %s, %s, %s)",
+            (event_type, event_time, ticker, action, context, trade_time)
         )

@@ -2,7 +2,8 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class Tweet(BaseModel):
+class Event(BaseModel):
     event_type: str
     ticker: str
     time: str
+    context: str

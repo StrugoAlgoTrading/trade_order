@@ -5,10 +5,6 @@ services:
     build: .
     volumes:
       - .:/app
-      - ./jts.ini:/home/ibgateway/Jts/jts.ini
-      - ./tws.xml:/home/ibgateway/Jts/tws.xml
-      - ./config.ini:/root/ibc/config.ini
-
     ports:
       - "8000:8000"
     environment:
@@ -31,32 +27,23 @@ services:
         condition: service_started
 
   ib-gateway:
-    image: ghcr.io/unusualalpha/ib-gateway:10.20.1h
+    image: manhinhang/ib-gateway-docker
+    expose:
+      - "4002"
     environment:
-      - CUSTOM_CONFIG=yes
+      - IB_ACCOUNT=${IB_ACCOUNT}
+      - IB_PASSWORD=${IB_PASSWORD}
+      - TRADING_MODE=${TRADING_MODE}
+      - HEALTHCHECK_API_ENABLE=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthcheck"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
     networks:
       - trade_network
-    volumes:
-      - ./jts.ini:/home/ibgateway/Jts/jts.ini
-      - ./tws.xml:/home/ibgateway/Jts/tws.xml
-      - ./config.ini:/root/ibc/config.ini
-    ports:
-      - "4000:4000"  # חדש - פותח את 4000
-      - "4001:4001"
-      - "4002:4002"
-    expose:
-      - "4000"      # חדש - מוסיף את 4000
-      - "4001"
-      - "4002"
-    dns:
-      - 1.1.1.1
-      - 1.0.0.1
-    healthcheck:
-      test: ["CMD-SHELL", "timeout 5 bash -c 'echo > /dev/tcp/localhost/4002' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 60s
+
 
   db:
     image: postgres:13
