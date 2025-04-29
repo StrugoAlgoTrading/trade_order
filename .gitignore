@@ -19,5 +19,3 @@ idea/
 
 # Secrets
 run.bat
-.env
-/.env
