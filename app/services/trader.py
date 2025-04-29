@@ -12,15 +12,15 @@ class TraderService(IBKR):
         IBKR.__init__(self)
         self.amount = 10
 
-    async def trade(self, event):
+    async def trade(self, event: Event):
         contract = Stock(event.ticker, 'SMART', 'USD')
         tracking_start_time = datetime.datetime.utcnow()
-        event_price = self.get_event_price(event.ticker, event.time)
+        event_price = self.get_event_price(contract, event.time)
         live_ticker = self.ib.reqMktData(contract, '', False, False)
-        entry = self.open_position(event_price, tracking_start_time, live_ticker, contract)
+        entry = await self.open_position(event_price, tracking_start_time, live_ticker, contract)
         if entry:
-            all_positions = self.flip_position(entry, tracking_start_time, live_ticker, event_price, contract)
-        return all_positions
+            all_positions = await self.flip_position(entry, tracking_start_time, live_ticker, event_price, contract)
+            return all_positions
 
     async def open_position(self, event_price, tracking_start_time, live_ticker, contract):
         upper, lower = event_price * 1.003, event_price * 0.997
@@ -54,17 +54,17 @@ class TraderService(IBKR):
                 entry.append({'type': 'long', 'price': fill_price, 'time': fill_time})
                 position_side = 'long'
                 print(f"❗ הפכתי לפוזיציית לונג ב־{price:.2f}")
-
             await asyncio.sleep(1)
         return entry
-    
-    def get_event_price(self, stock: Stock, at_time: datetime.datetime) -> float:
-        start = at_time.strftime("%Y%m%d %H:%M:%S")
-        end = (at_time + datetime.timedelta(seconds=1)).strftime("%Y%m%d %H:%M:%S")
+
+    def get_event_price(self, stock: Stock, at_time: str) -> float:
+        tweet_time = datetime.datetime.strptime(at_time, '%Y-%m-%dT%H:%M:%S.%fZ')
+        start_time = tweet_time.strftime('%Y%m%d %H:%M:%S')
+        end_time = (tweet_time + datetime.timedelta(seconds=1)).strftime("%Y%m%d %H:%M:%S")
         ticks = self.ib.reqHistoricalTicks(
             stock,
-            startDateTime=start,
-            endDateTime=end,
+            startDateTime=start_time,
+            endDateTime=end_time,
             numberOfTicks=1,
             whatToShow='TRADES',
             useRth=False
